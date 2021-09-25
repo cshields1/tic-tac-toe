@@ -1,0 +1,38 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+body {
+  min-height: 100vh;
+  padding: 0.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+main {
+  min-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#display {
+  display: grid;
+  grid-template-areas: "a a a" "b b b" "c c c";
+  justify-content: center;
+}
+
+.square {
+  width: 6rem;
+  height: 6rem;
+  font-size: 3em;
+  border: 1px solid black;
+  box-shadow: 0 0 1px 1px rgb(73, 73, 73);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
