@@ -36,3 +36,7 @@ main {
   justify-content: center;
   align-items: center;
 }
+
+button {
+  padding: 0.5em 1em;
+}
