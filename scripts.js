@@ -1,11 +1,23 @@
-const Game = (() => {
+const Board = (() => {
   const board = ["", "", "", "", "", "", "", "", ""];
   const drawBoard = () => {
     const display = document.querySelector("#display");
     for (let i = 0; i < 9; i++) {
       const square = document.createElement("div");
       square.classList.add("square", `square-${i + 1}`);
-      square.addEventListener("click", () => {});
+      square.setAttribute("is-clickable", true);
+      square.addEventListener("click", () => {
+        if (square.hasAttribute("is-clickable")) {
+          square.removeAttribute("is-clickable");
+          if (Game.isXTurn) {
+            square.textContent = "X";
+            Game.isXTurn = false;
+          } else {
+            square.textContent = "O";
+            Game.isXTurn = true;
+          }
+        }
+      });
       square.textContent = board[i];
       display.append(square);
     }
@@ -31,29 +43,32 @@ const Player = (name, catchphrase) => {
   return { name, score, winRound, loseRound, announce, taunt };
 };
 
-const Controller = (() => {
-  const resetPlayers = document.querySelector("#reset-players-btn");
-  resetPlayers.addEventListener("click", () => {
-    const p1Name = prompt("What's your name?");
-    const p1Catchphrase = prompt("What's your catchphrase?");
-    const p2Name = prompt("What's your name?");
-    const p2Catchphrase = prompt("What's your catchphrase?");
+const Game = (() => {
+  const resetGame = document.querySelector("#reset-game-btn");
+  resetGame.addEventListener("click", Board.drawBoard);
 
-    const newP1 = Player(p1Name, p1Catchphrase);
-    const newP2 = Player(p2Name, p2Catchphrase);
+  const resetPlayers = () => {
+    const p1Name = prompt("What's Player One's name?");
+    const p1Catchphrase = prompt("What's Player One's catchphrase?");
+    const p2Name = prompt("What's Player Two's name?");
+    const p2Catchphrase = prompt("What's Player Two's catchphrase?");
 
-    const playerOne = document.querySelector("#player-one");
-    const playerTwo = document.querySelector("#player-two");
+    const playerOne = Player(p1Name, p1Catchphrase);
+    const playerTwo = Player(p2Name, p2Catchphrase);
 
-    playerOne.textContent = newP1.name;
-    playerTwo.textContent = newP2.name;
-  });
+    const newP1 = document.querySelector("#player-one");
+    const newP2 = document.querySelector("#player-two");
 
-  const addX = () => {};
-  const addO = () => {};
-  return { addX, addO };
+    newP1.textContent = playerOne.name;
+    newP2.textContent = playerTwo.name;
+
+    return { playerOne, playerTwo };
+  };
+
+  const resetPlayersBtn = document.querySelector("#reset-players-btn");
+  resetPlayersBtn.addEventListener("click", resetPlayers);
+
+  let isXTurn = true;
+
+  return { resetPlayers, isXTurn };
 })();
-
-// click button to add player
-// input name and catchphrase
-// save to player one and update display
