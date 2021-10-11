@@ -1,5 +1,5 @@
 const Board = (() => {
-  const board = [[], [], []];
+  const board = [];
   const display = document.querySelector("#display");
   const drawBoard = () => {
     for (let i = 0; i < 9; i++) {
@@ -7,17 +7,19 @@ const Board = (() => {
       square.classList.add("square", `square-${i + 1}`);
       square.setAttribute("is-clickable", true);
       square.addEventListener("click", () => {
-        square.removeAttribute("is-clickable");
-        if (Game.isXTurn) {
-          square.textContent = "X";
-          board[i] = "X";
-          Game.isXTurn = false;
-        } else {
-          square.textContent = "O";
-          board[i] = "O";
-          Game.isXTurn = true;
+        if (square.hasAttribute("is-clickable")) {
+          square.removeAttribute("is-clickable");
+          if (Game.isXTurn) {
+            square.textContent = "X";
+            board[i] = "X";
+            Game.isXTurn = false;
+          } else {
+            square.textContent = "O";
+            board[i] = "O";
+            Game.isXTurn = true;
+          }
+          Game.checkGameStatus();
         }
-        Game.checkGameStatus();
       });
       display.append(square);
     }
@@ -47,7 +49,14 @@ const Player = (name, catchphrase) => {
 
 const Game = (() => {
   const resetGame = document.querySelector("#reset-game-btn");
-  resetGame.addEventListener("click", Board.drawBoard);
+  resetGame.addEventListener("click", () => {
+    if (Board.display.firstChild) {
+      while (Board.display.firstChild) {
+        Board.display.firstChild.remove();
+      }
+    }
+    Board.drawBoard();
+  });
 
   const resetPlayers = () => {
     const p1Name = prompt("What's Player One's name?");
@@ -72,8 +81,6 @@ const Game = (() => {
 
   let isXTurn = true;
 
-  let isGameOver = false;
-
   const checkGameStatus = () => {
     const squares = Board.board;
 
@@ -92,13 +99,20 @@ const Game = (() => {
       [squares[2], squares[4], squares[6]],
     ];
 
+    let winner;
+    const winningMessage = document.createElement("p");
+    winningMessage.textContent = `Game over! ${winner} wins!`;
+    const winningDisplay = document.querySelector("#winning-message");
+
     for (let row of rows) {
       if (
         row.every((square) => square === "X") ||
         row.every((square) => square === "O")
       ) {
-        isGameOver = true;
-        alert("GAME OVER!");
+        row[0] === "X"
+          ? (winner = Game.playerOne.name)
+          : (winner = Game.playerTwo.name);
+        winningDisplay.append(winningMessage);
       }
     }
     for (let column of columns) {
@@ -106,8 +120,10 @@ const Game = (() => {
         column.every((square) => square === "X") ||
         column.every((square) => square === "O")
       ) {
-        isGameOver = true;
-        alert("GAME OVER!");
+        column[0] === "X"
+          ? (winner = Game.playerOne.name)
+          : (winner = Game.playerTwo.name);
+        winningDisplay.append(winningMessage);
       }
     }
     for (let diagonal of diagonals) {
@@ -115,11 +131,13 @@ const Game = (() => {
         diagonal.every((square) => square === "X") ||
         diagonal.every((square) => square === "O")
       ) {
-        isGameOver = true;
-        alert("GAME OVER!");
+        diagonal[0] === "X"
+          ? (winner = Game.playerOne.name)
+          : (winner = Game.playerTwo.name);
+        winningDisplay.append(winningMessage);
       }
     }
   };
 
-  return { resetPlayers, isXTurn, checkGameStatus };
+  return { playerOne, playerTwo, resetPlayers, isXTurn, checkGameStatus };
 })();
