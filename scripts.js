@@ -1,10 +1,12 @@
 const Board = (() => {
   const board = [];
+
   const display = document.querySelector("#display");
+
   const drawBoard = () => {
     for (let i = 0; i < 9; i++) {
       const square = document.createElement("div");
-      square.classList.add("square", `square-${i + 1}`);
+      square.classList.add("square");
       square.setAttribute("is-clickable", true);
       square.addEventListener("click", () => {
         if (square.hasAttribute("is-clickable")) {
@@ -48,6 +50,9 @@ const Player = (name, catchphrase) => {
 };
 
 const Game = (() => {
+  let isGameOver = false;
+  let isXTurn = true;
+
   const resetGame = document.querySelector("#reset-game-btn");
   resetGame.addEventListener("click", () => {
     if (Board.display.firstChild) {
@@ -55,31 +60,29 @@ const Game = (() => {
         Board.display.firstChild.remove();
       }
     }
+    isGameOver = false;
     Board.drawBoard();
   });
 
-  const resetPlayers = () => {
+  let playerOne = Player("Player One", "I'm Player One");
+  let playerTwo = Player("Player Two", "I'm Player Two");
+
+  const resetPlayersBtn = document.querySelector("#reset-players-btn");
+  resetPlayersBtn.addEventListener("click", () => {
     const p1Name = prompt("What's Player One's name?");
     const p1Catchphrase = prompt("What's Player One's catchphrase?");
     const p2Name = prompt("What's Player Two's name?");
     const p2Catchphrase = prompt("What's Player Two's catchphrase?");
 
-    const playerOne = Player(p1Name, p1Catchphrase);
-    const playerTwo = Player(p2Name, p2Catchphrase);
+    Game.playerOne = Player(p1Name, p1Catchphrase);
+    Game.playerTwo = Player(p2Name, p2Catchphrase);
 
     const newP1 = document.querySelector("#player-one");
     const newP2 = document.querySelector("#player-two");
 
-    newP1.textContent = playerOne.name;
-    newP2.textContent = playerTwo.name;
-
-    return { playerOne, playerTwo };
-  };
-
-  const resetPlayersBtn = document.querySelector("#reset-players-btn");
-  resetPlayersBtn.addEventListener("click", resetPlayers);
-
-  let isXTurn = true;
+    newP1.textContent = Game.playerOne.name;
+    newP2.textContent = Game.playerTwo.name;
+  });
 
   const checkGameStatus = () => {
     const squares = Board.board;
@@ -99,10 +102,12 @@ const Game = (() => {
       [squares[2], squares[4], squares[6]],
     ];
 
-    let winner;
-    const winningMessage = document.createElement("p");
-    winningMessage.textContent = `Game over! ${winner} wins!`;
     const winningDisplay = document.querySelector("#winning-message");
+    const winningMessage = document.createElement("p");
+    const announceWinner = (winner) => {
+      winningMessage.textContent = `Game over! ${winner} wins!`;
+      winningDisplay.append(winningMessage);
+    };
 
     for (let row of rows) {
       if (
@@ -110,9 +115,9 @@ const Game = (() => {
         row.every((square) => square === "O")
       ) {
         row[0] === "X"
-          ? (winner = Game.playerOne.name)
-          : (winner = Game.playerTwo.name);
-        winningDisplay.append(winningMessage);
+          ? announceWinner(Game.playerOne.name)
+          : announceWinner(Game.playerTwo.name);
+        isGameOver = true;
       }
     }
     for (let column of columns) {
@@ -121,9 +126,9 @@ const Game = (() => {
         column.every((square) => square === "O")
       ) {
         column[0] === "X"
-          ? (winner = Game.playerOne.name)
-          : (winner = Game.playerTwo.name);
-        winningDisplay.append(winningMessage);
+          ? announceWinner(Game.playerOne.name)
+          : announceWinner(Game.playerTwo.name);
+        isGameOver = true;
       }
     }
     for (let diagonal of diagonals) {
@@ -132,12 +137,12 @@ const Game = (() => {
         diagonal.every((square) => square === "O")
       ) {
         diagonal[0] === "X"
-          ? (winner = Game.playerOne.name)
-          : (winner = Game.playerTwo.name);
-        winningDisplay.append(winningMessage);
+          ? announceWinner(Game.playerOne.name)
+          : announceWinner(Game.playerTwo.name);
+        isGameOver = true;
       }
     }
   };
 
-  return { playerOne, playerTwo, resetPlayers, isXTurn, checkGameStatus };
+  return { playerOne, playerTwo, isXTurn, checkGameStatus };
 })();
